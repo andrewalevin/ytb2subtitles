@@ -30,7 +30,11 @@ def get_subtitles(url, lang='') -> list:
     if not movie_id:
         return []
 
-    transcript_list = YouTubeTranscriptApi.list_transcripts(movie_id)
+    try:
+        transcript_list = YouTubeTranscriptApi.list_transcripts(movie_id)
+    except Exception as e:
+        return []
+
     if not transcript_list:
         return []
 
@@ -39,12 +43,21 @@ def get_subtitles(url, lang='') -> list:
         lang = original_lang
 
     if lang == original_lang:
-        return transcript_list.find_transcript([original_lang]).fetch()
+        try:
+            subs = transcript_list.find_transcript([original_lang]).fetch()
+        except Exception as e:
+            return []
+        return subs
 
     if not lang_available(transcript_list, lang):
         return []
 
-    return transcript_list.find_transcript([original_lang]).translate(lang).fetch()
+    try:
+        subs = transcript_list.find_transcript([original_lang]).translate(lang).fetch()
+    except Exception as e:
+        return []
+
+    return subs
 
 
 def main():
